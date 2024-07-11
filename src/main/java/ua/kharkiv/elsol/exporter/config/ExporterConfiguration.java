@@ -68,7 +68,7 @@ public class ExporterConfiguration {
 
   @Bean
   public S3Client s3Client() {
-    return S3Client.builder().region(Region.of(region)).crossRegionAccessEnabled(true).build();
+    return S3Client.builder().region(Region.of(region)).useArnRegion(true).build();
   }
 
   @Bean
