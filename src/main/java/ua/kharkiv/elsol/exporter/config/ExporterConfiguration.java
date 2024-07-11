@@ -22,6 +22,8 @@ import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.endpoints.S3EndpointProvider;
+import software.amazon.awssdk.services.s3.internal.crossregion.endpointprovider.BucketEndpointProvider;
 import software.amazon.awssdk.services.sns.SnsClient;
 
 @Configuration
@@ -68,7 +70,10 @@ public class ExporterConfiguration {
 
   @Bean
   public S3Client s3Client() {
-    return S3Client.builder().region(Region.of(region)).useArnRegion(true).build();
+    return S3Client.builder().region(Region.of(region))
+        .endpointProvider(
+        BucketEndpointProvider.create(S3EndpointProvider.defaultProvider(),
+            () -> Region.of(region))).build();
   }
 
   @Bean
