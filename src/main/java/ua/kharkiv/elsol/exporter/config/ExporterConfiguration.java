@@ -71,9 +71,7 @@ public class ExporterConfiguration {
   @Bean
   public S3Client s3Client() {
     return S3Client.builder().region(Region.of(region))
-        .endpointProvider(
-        BucketEndpointProvider.create(S3EndpointProvider.defaultProvider(),
-            () -> Region.of(region))).build();
+        .crossRegionAccessEnabled(true).build();
   }
 
   @Bean
