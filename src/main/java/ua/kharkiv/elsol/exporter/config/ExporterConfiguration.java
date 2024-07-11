@@ -22,8 +22,11 @@ import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3ClientBuilder;
 import software.amazon.awssdk.services.s3.endpoints.S3EndpointProvider;
 import software.amazon.awssdk.services.s3.internal.crossregion.endpointprovider.BucketEndpointProvider;
+import software.amazon.awssdk.services.s3.model.GetBucketLocationRequest;
+import software.amazon.awssdk.services.s3.model.GetBucketLocationResponse;
 import software.amazon.awssdk.services.sns.SnsClient;
 
 @Configuration
@@ -34,6 +37,9 @@ public class ExporterConfiguration {
 
   @Value("${aws.region}")
   private String region;
+
+  @Value("${s3.bucketName}")
+  private String bucketName;
 
   @Bean
   public HttpTransport httpTransport() throws Exception {
@@ -70,8 +76,13 @@ public class ExporterConfiguration {
 
   @Bean
   public S3Client s3Client() {
-    return S3Client.builder().region(Region.of(region))
-        .crossRegionAccessEnabled(true).build();
+    S3ClientBuilder clientBuilder = S3Client.builder();
+    try (final S3Client client = clientBuilder.region(Region.of(region)).build()) {
+      final GetBucketLocationResponse response = client.getBucketLocation(
+          GetBucketLocationRequest.builder().bucket(bucketName).build());
+      clientBuilder.region(Region.of(response.locationConstraintAsString()));
+    }
+    return clientBuilder.build();
   }
 
   @Bean
