@@ -53,7 +53,7 @@ public class ExporterRunner implements CommandLineRunner {
         LOGGER.info("File {} was cleaned up.", filePath);
         successfulNumberOfFiles.incrementAndGet();
       } catch (Exception ex) {
-        LOGGER.warn("Unable to download file {}, reason: {}", file.getName(), ex);
+        LOGGER.warn("Unable to export file {}, reason: {}", file.getName(), ex);
         failedNumberOfFiles.incrementAndGet();
       }
     });
