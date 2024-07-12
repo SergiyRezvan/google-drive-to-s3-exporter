@@ -14,6 +14,7 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.ServiceAccountCredentials;
+import java.net.URI;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
@@ -72,7 +73,9 @@ public class ExporterConfiguration {
   @Bean
   public S3AsyncClient s3Client() {
     return S3AsyncClient.builder()
-        .region(Region.US_EAST_2).build();
+        .region(Region.US_EAST_2)
+        .endpointOverride(URI.create("https://s3.us-east-2.amazonaws.com"))
+        .build();
   }
 
   @Bean
