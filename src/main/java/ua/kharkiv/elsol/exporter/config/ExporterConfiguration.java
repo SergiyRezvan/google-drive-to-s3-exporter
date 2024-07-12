@@ -71,7 +71,7 @@ public class ExporterConfiguration {
 
   @Bean
   public S3AsyncClient s3Client() {
-    return S3AsyncClient.builder()
+    return S3AsyncClient.crtBuilder()
         .region(Region.of(region))
         .build();
   }
