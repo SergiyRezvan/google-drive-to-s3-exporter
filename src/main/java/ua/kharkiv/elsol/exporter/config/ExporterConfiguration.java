@@ -72,7 +72,7 @@ public class ExporterConfiguration {
   @Bean
   public S3AsyncClient s3Client() {
     return S3AsyncClient.builder()
-        .region(Region.of(region)).build();
+        .region(Region.US_EAST_2).build();
   }
 
   @Bean
@@ -88,12 +88,12 @@ public class ExporterConfiguration {
 
   @Bean
   public SnsClient snsClient() {
-    return SnsClient.builder().region(Region.of(region)).build();
+    return SnsClient.builder().region(Region.US_EAST_2).build();
   }
 
   @Bean
   public DynamoDbClient dynamoDbClient() {
-    return DynamoDbClient.builder().region(Region.of(region)).build();
+    return DynamoDbClient.builder().region(Region.US_EAST_2).build();
   }
 
 }
