@@ -31,9 +31,6 @@ import software.amazon.awssdk.transfer.s3.S3TransferManager;
 @Configuration
 public class ExporterConfiguration {
 
-  @Value("${sm.google.drive.creds}")
-  private String secretsManagerCreds;
-
   @Value("${aws.region}")
   private String region;
 
@@ -51,7 +48,7 @@ public class ExporterConfiguration {
   public HttpRequestInitializer httpRequestInitializer() throws Exception {
     AWSSecretsManager secretsManagerClient = AWSSecretsManagerClient.builder().build();
     GetSecretValueRequest secretValueRequest = new GetSecretValueRequest();
-    secretValueRequest.setSecretId(secretsManagerCreds);
+    secretValueRequest.setSecretId(System.getenv("SM_GROUP"));
     GetSecretValueResult secretValue = secretsManagerClient.getSecretValue(secretValueRequest);
     var credentials = ServiceAccountCredentials.fromStream(
             new StringInputStream(secretValue.getSecretString()))
