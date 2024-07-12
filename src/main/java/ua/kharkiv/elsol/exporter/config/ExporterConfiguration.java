@@ -14,7 +14,6 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.ServiceAccountCredentials;
-import java.net.URI;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
@@ -34,6 +33,9 @@ public class ExporterConfiguration {
   @Value("${aws.region}")
   private String region;
 
+  @Value("${sm.google.drive.creds}")
+  private String secretsGroupName;
+
   @Bean
   public HttpTransport httpTransport() throws Exception {
     return GoogleNetHttpTransport.newTrustedTransport();
@@ -48,7 +50,7 @@ public class ExporterConfiguration {
   public HttpRequestInitializer httpRequestInitializer() throws Exception {
     AWSSecretsManager secretsManagerClient = AWSSecretsManagerClient.builder().build();
     GetSecretValueRequest secretValueRequest = new GetSecretValueRequest();
-    secretValueRequest.setSecretId(System.getenv("SM_GROUP"));
+    secretValueRequest.setSecretId(secretsGroupName);
     GetSecretValueResult secretValue = secretsManagerClient.getSecretValue(secretValueRequest);
     var credentials = ServiceAccountCredentials.fromStream(
             new StringInputStream(secretValue.getSecretString()))
@@ -87,7 +89,7 @@ public class ExporterConfiguration {
 
   @Bean
   public SnsClient snsClient() {
-    return SnsClient.builder().build();
+    return SnsClient.builder().region(Region.of(region)).build();
   }
 
   @Bean

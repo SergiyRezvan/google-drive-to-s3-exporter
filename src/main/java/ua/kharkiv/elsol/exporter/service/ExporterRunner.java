@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,9 +51,9 @@ public class ExporterRunner implements CommandLineRunner {
         String folderPath = getFolderPath(file);
         uploadService.uploadFile(filePath, folderPath);
         Thread.sleep(3000);
-        LOGGER.info("File {} was cleaned up.", filePath);
         successfulNumberOfFiles.incrementAndGet();
         Files.delete(Path.of(filePath));
+        LOGGER.info("File {} was cleaned up.", filePath);
       } catch (Exception ex) {
         LOGGER.warn("Unable to export file {}, reason: {}", file.getName(), ex);
         failedNumberOfFiles.incrementAndGet();
@@ -68,8 +69,24 @@ public class ExporterRunner implements CommandLineRunner {
 
   private String getFolderPath(File file) throws Exception {
     if (file.getParents() != null && !file.getParents().isEmpty()) {
-      return googleDriveService.getFullFolderPath(file.getParents().get(0));
+      return getFullFolderPath(file.getParents().get(0));
     }
     return "";
   }
+
+  public String getFullFolderPath(String fileId) throws Exception {
+    String folderPath = "/";
+    File file;
+    do {
+      file = googleDriveService.getParent(fileId);
+      folderPath = "/" + file.getName() + folderPath;
+      if (!Objects.isNull(file.getParents()) && !file.getParents().isEmpty()) {
+        fileId = file.getParents().get(0);
+      } else {
+        fileId = null;
+      }
+    } while (!Objects.isNull(fileId));
+    return folderPath.replaceAll(" ", "_");
+  }
+
 }

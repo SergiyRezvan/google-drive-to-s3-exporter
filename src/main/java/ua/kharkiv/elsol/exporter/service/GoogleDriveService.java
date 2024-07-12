@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,21 +60,6 @@ public class GoogleDriveService {
     } while (request.getPageToken() != null &&
         request.getPageToken().length() > 0);
     return result;
-  }
-
-  public String getFullFolderPath(String fileId) throws Exception {
-    String folderPath = "/";
-    File file;
-    do {
-      file = getParent(fileId);
-      folderPath = "/" + file.getName() + folderPath;
-      if (!Objects.isNull(file.getParents()) && !file.getParents().isEmpty()) {
-        fileId = file.getParents().get(0);
-      } else {
-        fileId = null;
-      }
-    } while (!Objects.isNull(fileId));
-    return folderPath.replaceAll(" ", "_");
   }
 
   @Cacheable("folder")
