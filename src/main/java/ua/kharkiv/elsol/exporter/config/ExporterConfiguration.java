@@ -73,8 +73,7 @@ public class ExporterConfiguration {
   @Bean
   public S3AsyncClient s3Client() {
     return S3AsyncClient.builder()
-        .region(Region.US_EAST_2)
-        .endpointOverride(URI.create("https://s3." + region + ".amazonaws.com"))
+        .region(Region.of(region))
         .build();
   }
 
@@ -91,12 +90,12 @@ public class ExporterConfiguration {
 
   @Bean
   public SnsClient snsClient() {
-    return SnsClient.builder().region(Region.US_EAST_2).build();
+    return SnsClient.builder().build();
   }
 
   @Bean
   public DynamoDbClient dynamoDbClient() {
-    return DynamoDbClient.builder().region(Region.US_EAST_2).build();
+    return DynamoDbClient.builder().region(Region.of(region)).build();
   }
 
 }
