@@ -41,7 +41,7 @@ public class ExporterRunner implements CommandLineRunner {
     List<File> allFiles = googleDriveService.getAllFiles(latestExportRun);
     AtomicInteger successfulNumberOfFiles = new AtomicInteger();
     AtomicInteger failedNumberOfFiles = new AtomicInteger();
-    allFiles.parallelStream().forEach(file -> {
+    allFiles.forEach(file -> {
       LOGGER.info("file name: {}, mimeType: {}, modifiedTime: {}",
           file.getName(), file.getMimeType(), file.getModifiedTime());
       try {
@@ -49,16 +49,17 @@ public class ExporterRunner implements CommandLineRunner {
         LOGGER.info("File {}, was downloaded to: {}", file.getName(), filePath);
         String folderPath = getFolderPath(file);
         uploadService.uploadFile(filePath, folderPath);
-        Files.delete(Path.of(filePath));
+        Thread.sleep(10000);
         LOGGER.info("File {} was cleaned up.", filePath);
         successfulNumberOfFiles.incrementAndGet();
+        Files.delete(Path.of(filePath));
       } catch (Exception ex) {
         LOGGER.warn("Unable to export file {}, reason: {}", file.getName(), ex);
         failedNumberOfFiles.incrementAndGet();
       }
     });
     String notificationMessage = MessageFormat.format(
-        "Export of google drive start has finished. Total number of files: {}, successfully exported: {}, failed to export: {}",
+        "Export of google drive has finished. Total number of files: {0}, successfully exported: {1}, failed to export: {2}",
         allFiles.size(), successfulNumberOfFiles.get(), failedNumberOfFiles.get());
     notificationService.sendNotification(notificationMessage);
     dataStoreService.updateLatestExportRun(currentExportRunTime);

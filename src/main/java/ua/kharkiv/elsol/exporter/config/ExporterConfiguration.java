@@ -21,13 +21,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.S3ClientBuilder;
-import software.amazon.awssdk.services.s3.endpoints.S3EndpointProvider;
-import software.amazon.awssdk.services.s3.internal.crossregion.endpointprovider.BucketEndpointProvider;
-import software.amazon.awssdk.services.s3.model.GetBucketLocationRequest;
-import software.amazon.awssdk.services.s3.model.GetBucketLocationResponse;
+import software.amazon.awssdk.services.s3.S3AsyncClient;
+import software.amazon.awssdk.services.s3.internal.multipart.MultipartS3AsyncClient;
+import software.amazon.awssdk.services.s3.multipart.MultipartConfiguration;
 import software.amazon.awssdk.services.sns.SnsClient;
+import software.amazon.awssdk.transfer.s3.S3TransferManager;
 
 @Configuration
 public class ExporterConfiguration {
@@ -37,9 +35,6 @@ public class ExporterConfiguration {
 
   @Value("${aws.region}")
   private String region;
-
-  @Value("${s3.bucketName}")
-  private String bucketName;
 
   @Bean
   public HttpTransport httpTransport() throws Exception {
@@ -75,14 +70,20 @@ public class ExporterConfiguration {
   }
 
   @Bean
-  public S3Client s3Client() {
-    S3ClientBuilder clientBuilder = S3Client.builder();
-    try (final S3Client client = clientBuilder.region(Region.of(region)).build()) {
-      final GetBucketLocationResponse response = client.getBucketLocation(
-          GetBucketLocationRequest.builder().bucket(bucketName).build());
-      clientBuilder.region(Region.of(response.locationConstraintAsString()));
-    }
-    return clientBuilder.build();
+  public S3AsyncClient s3Client() {
+    return S3AsyncClient.builder()
+        .region(Region.of(region)).build();
+  }
+
+  @Bean
+  public MultipartS3AsyncClient multipartS3AsyncClient() {
+    return MultipartS3AsyncClient.create(s3Client(), MultipartConfiguration.builder()
+        .minimumPartSizeInBytes(5 * 1024 * 1024L).build());
+  }
+
+  @Bean
+  public S3TransferManager s3TransferManager() {
+    return S3TransferManager.builder().s3Client(s3Client()).build();
   }
 
   @Bean
