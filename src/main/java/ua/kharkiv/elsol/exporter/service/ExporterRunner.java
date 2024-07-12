@@ -49,7 +49,7 @@ public class ExporterRunner implements CommandLineRunner {
         LOGGER.info("File {}, was downloaded to: {}", file.getName(), filePath);
         String folderPath = getFolderPath(file);
         uploadService.uploadFile(filePath, folderPath);
-        Thread.sleep(10000);
+        Thread.sleep(3000);
         LOGGER.info("File {} was cleaned up.", filePath);
         successfulNumberOfFiles.incrementAndGet();
         Files.delete(Path.of(filePath));

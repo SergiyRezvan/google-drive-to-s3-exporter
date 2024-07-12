@@ -74,7 +74,7 @@ public class ExporterConfiguration {
   public S3AsyncClient s3Client() {
     return S3AsyncClient.builder()
         .region(Region.US_EAST_2)
-        .endpointOverride(URI.create("https://s3.us-east-2.amazonaws.com"))
+        .endpointOverride(URI.create("https://s3." + region + ".amazonaws.com"))
         .build();
   }
 
