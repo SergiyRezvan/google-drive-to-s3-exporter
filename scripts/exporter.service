@@ -1,0 +1,9 @@
+[Unit]
+Description=Run google drive exporter.
+
+[Service]
+Type=simple
+ExecStart=/bin/bash /home/ec2-user/runScript.sh
+
+[Install]
+WantedBy=multi-user.target
