@@ -30,6 +30,9 @@ public class GoogleDriveService {
   @Value("${supported.export.types}")
   private List<String> supportedExportTypes;
 
+  @Value("${ignored.mime.types}")
+  private List<String> ignoredTypes;
+
   @Value("${default.export.type}")
   private String defaultExportType;
 
@@ -74,7 +77,7 @@ public class GoogleDriveService {
     java.io.File parentDir = new java.io.File(System.getProperty("user.home"));
     String downloadedFile = parentDir + java.io.File.separator
         + fileToExport.getName();
-    if (fileToExport.getMimeType().equals("application/vnd.google-apps.form")) {
+    if (ignoredTypes.contains(fileToExport.getMimeType())) {
       LOGGER.info("Google forms can not be exported");
       return null;
     } else if (fileToExport.getMimeType().startsWith("application/vnd.google-apps")) {
