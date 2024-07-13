@@ -46,8 +46,9 @@ public class GoogleDriveService {
     }
     Drive.Files.List request = driveClient.files().list()
         .setQ(query)
-        .setFields("files(id, name, mimeType, modifiedTime, createdTime, parents, exportLinks)")
-        .setPageSize(20);
+        .setPageSize(20)
+        .setFields(
+            "nextPageToken, files(id, name, mimeType, modifiedTime, createdTime, parents, exportLinks, webContentLink, webViewLink)");
     do {
       try {
         FileList files = request.execute();
@@ -57,8 +58,7 @@ public class GoogleDriveService {
         LOGGER.error("An error occurred:", e);
         request.setPageToken(null);
       }
-    } while (request.getPageToken() != null &&
-        request.getPageToken().length() > 0);
+    } while (StringUtils.hasText(request.getPageToken()));
     return result;
   }
 
@@ -74,7 +74,10 @@ public class GoogleDriveService {
     java.io.File parentDir = new java.io.File(System.getProperty("user.home"));
     String downloadedFile = parentDir + java.io.File.separator
         + fileToExport.getName();
-    if (fileToExport.getMimeType().startsWith("application/vnd.google-apps")) {
+    if (fileToExport.getMimeType().equals("application/vnd.google-apps.form")) {
+      LOGGER.info("Google forms can not be exported");
+      return null;
+    } else if (fileToExport.getMimeType().startsWith("application/vnd.google-apps")) {
       String exportedMimeType = fileToExport.getExportLinks().keySet().stream()
           .filter(mimeType -> supportedExportTypes.contains(mimeType)).findFirst()
           .orElse(defaultExportType);
