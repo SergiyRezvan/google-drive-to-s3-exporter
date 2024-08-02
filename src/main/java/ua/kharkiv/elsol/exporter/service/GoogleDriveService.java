@@ -78,7 +78,7 @@ public class GoogleDriveService {
     String downloadedFile = parentDir + java.io.File.separator
         + fileToExport.getName();
     if (ignoredTypes.contains(fileToExport.getMimeType())) {
-      LOGGER.info("Google forms can not be exported");
+      LOGGER.info("{} media type can not be exported", fileToExport.getMimeType());
       return null;
     } else if (fileToExport.getMimeType().startsWith("application/vnd.google-apps")) {
       String exportedMimeType = fileToExport.getExportLinks().keySet().stream()
